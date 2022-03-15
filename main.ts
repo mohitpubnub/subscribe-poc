@@ -1,7 +1,7 @@
-import { effectMap } from './effectActions'
-import { eventMap } from './eventActions'
-import { EffectEngine, EventEngine } from './eventEngine'
-import type { TStateMachineDefinition } from './types'
+import { effectMap } from './src/effectActions';
+import { eventMap } from './src/eventActions';
+import { EffectEngine, EventEngine } from './src/eventEngine';
+import type { TStateMachineDefinition } from './src/types';
 
 const stateMachineDefinition: TStateMachineDefinition = {
 	initialState: 'UNSUBSCRIBED',
@@ -44,13 +44,17 @@ const stateMachineDefinition: TStateMachineDefinition = {
 			},
 		},
 	},
-}
+};
 
 async function main() {
-	const effectEngine = new EffectEngine(effectMap)
+	const effectEngine = new EffectEngine(effectMap);
 
-	const engine = new EventEngine(stateMachineDefinition, eventMap, effectEngine)
+	const engine = new EventEngine(
+		stateMachineDefinition,
+		eventMap,
+		effectEngine
+	);
 
-	engine.start('SUBSCRIPTION_CHANGE', { channels: ['ch1'] })
+	engine.start('SUBSCRIPTION_CHANGE', { channels: ['ch1'] });
 }
-main()
+main();
