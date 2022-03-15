@@ -1,0 +1,14 @@
+{
+  "name": "ts-subscribe",
+  "version": "1.0.0",
+  "description": "Proof of concept",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node main.ts"
+  },
+  "author": "mohit",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^17.0.21"
+  }
+}
