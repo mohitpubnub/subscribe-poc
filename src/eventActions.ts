@@ -3,28 +3,28 @@ import type {
 	TEvent,
 	ActionMap,
 	TEventData,
-} from './types'
+} from './types';
 
 function subscriptionChangeAction(
 	context: TSubscriptionStateContext,
 	eventData: TEventData
 ) {
-	context.channels = eventData?.channels ? eventData?.channels : []
+	context.channels = eventData?.channels ? eventData?.channels : [];
 	context.channelGroups = eventData?.channelGroups
 		? eventData?.channelGroups
-		: []
-	return true
+		: [];
+	return true;
 }
 
 function receiveEventsSuccessAction(
 	context: TSubscriptionStateContext,
 	eventData: TEventData
 ) {
-	context.subscriptionCursor!.timetoken = eventData.timetoken!
-	context!.subscriptionCursor!.region = eventData.region!
+	context.subscriptionCursor!.timetoken = eventData.timetoken!;
+	context!.subscriptionCursor!.region = eventData.region!;
 
-	console.log('messages received => ', eventData.messages) // Receive Events handling EFFECT ?!
-	return true
+	console.log('messages received => ', eventData.messages); // Receive Events handling EFFECT ?!
+	return true;
 }
 
 function updateSubscriptionCursor(
@@ -32,25 +32,25 @@ function updateSubscriptionCursor(
 	eventData: TEventData
 ) {
 	if (context.subscriptionCursor) {
-		context.subscriptionCursor!.timetoken = eventData.timetoken!
-		context.subscriptionCursor!.region = eventData.region!
+		context.subscriptionCursor!.timetoken = eventData.timetoken!;
+		context.subscriptionCursor!.region = eventData.region!;
 	} else {
 		context.subscriptionCursor = {
 			timetoken: eventData.timetoken!,
 			region: eventData.region!,
-		}
+		};
 	}
-	return true
+	return true;
 }
 
 function errorHandlingAction(_: TSubscriptionStateContext, error: Error) {
-	console.log(`failure with error: ${error.message}`)
-	return true
+	console.log(`failure with error: ${error.message}`);
+	return true;
 }
 
 function voidAction(_: TSubscriptionStateContext, eventData: any) {
-	console.log(`voidAction/ no error data: ${eventData}`)
-	return true
+	console.log(`voidAction/ no error data: ${eventData}`);
+	return true;
 }
 
 export const eventMap: ActionMap<TEvent> = {
@@ -66,4 +66,4 @@ export const eventMap: ActionMap<TEvent> = {
 	DISCONNECT: errorHandlingAction,
 	RESTORE: voidAction,
 	GIVEUP: voidAction,
-}
+};
