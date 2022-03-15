@@ -1,11 +1,11 @@
-import { httpRequest } from './networking'
+import { httpRequest } from './networking';
 import type {
 	TSubscriptionStateContext,
 	Tcallback,
 	ActionMap,
 	TEffect,
-} from './types'
-import { delay } from './utils'
+} from './types';
+import { delay } from './utils';
 
 async function handShake(
 	context: TSubscriptionStateContext,
@@ -14,22 +14,22 @@ async function handShake(
 	try {
 		let url = `/v2/subscribe/demo/${context.channels.join(
 			','
-		)}/0?tt=0&&uuid=tstest`
+		)}/0?tt=0&&uuid=tstest`;
 		if (context.channelGroups?.length !== 0) {
-			url += `&${context.channelGroups?.join(',')}`
+			url += `&${context.channelGroups?.join(',')}`;
 		}
-		const requestResult = await httpRequest(url)
+		const requestResult = await httpRequest(url);
 
-		const response = JSON.parse(requestResult)
+		const response = JSON.parse(requestResult);
 
 		callback('HANDSHAKE_SUCCESS', {
 			timetoken: response.t.t,
 			region: response.t.r,
-		})
-		return
+		});
+		return;
 	} catch (e) {
 		if (e instanceof Error) {
-			callback('HANDSHAKE_FAILURE', e)
+			callback('HANDSHAKE_FAILURE', e);
 		}
 	}
 }
@@ -38,72 +38,73 @@ async function receiveEvents(
 	context: TSubscriptionStateContext,
 	callback: Tcallback
 ): Promise<void> {
-	let response
+	let response;
 
 	try {
 		let url = `/v2/subscribe/demo/${context.channels.join(',')}/0?tt=${
 			context.subscriptionCursor.timetoken
-		}&tr=${context.subscriptionCursor.region}&uuid=tstest`
+		}&tr=${context.subscriptionCursor.region}&uuid=tstest`;
 		if (context.channelGroups?.length !== 0) {
-			url += `&${context.channelGroups?.join(',')}`
+			url += `&${context.channelGroups?.join(',')}`;
 		}
-		const httpRequestResult = await httpRequest(url)
+		const httpRequestResult = await httpRequest(url);
 
-		response = JSON.parse(httpRequestResult)
+		response = JSON.parse(httpRequestResult);
 	} catch (e) {
 		if (e instanceof Error) {
-			callback('RECEIVE_FAILURE', e)
+			callback('RECEIVE_FAILURE', e);
 		}
-		return
+		return;
 	}
 
 	callback('RECEIVE_SUCCESS', {
 		timetoken: response.t.t,
 		region: response.t.r,
 		messages: response.m,
-	})
-	return
+	});
+	return;
 }
 
 function unsubscribeAll(_: TSubscriptionStateContext, a: Tcallback) {
-	console.log('stopped!!')
-	return
+	console.log('stopped!!');
+	return;
 }
 
 async function retryRequest(
 	context: TSubscriptionStateContext,
-	callback: Tcallback
+	callback: Tcallback,
+	previousAttempts: number = 0
 ) {
-	let response
-	let attempted = 0
-	let delayMilliseconds = 200
+	let response;
+	let attempted = previousAttempts;
+	let delayMilliseconds = 200;
 
 	try {
 		let url = `/v2/subscribe/demo/${context.channels.join(',')}/0?tt=${
 			context.subscriptionCursor.timetoken
-		}&tr=${context.subscriptionCursor.region}&uuid=tstest`
+		}&tr=${context.subscriptionCursor.region}&uuid=tstest`;
 		if (context.channelGroups?.length !== 0) {
-			url += `&${context.channelGroups?.join(',')}`
+			url += `&${context.channelGroups?.join(',')}`;
 		}
-		const httpRequestResult = await httpRequest(url)
+		const httpRequestResult = await httpRequest(url);
 
-		response = JSON.parse(httpRequestResult)
+		response = JSON.parse(httpRequestResult);
 
 		callback('RECONNECT_SUCCESS', {
 			timetoken: response.t.t,
 			region: response.t.r,
 			messages: response.m,
-		})
+		});
 	} catch (e) {
 		// if (e instanceof Error) {
 		//		custom logic whether to attempt retry
 		// }
 		if (attempted >= context.retryCount) {
-			callback('GIVEUP', e as Error)
-			return
+			callback('GIVEUP', e as Error);
+			return;
 		} else {
-			await delay(delayMilliseconds * ++attempted)
-			retryRequest(context, callback)
+			await delay(delayMilliseconds * ++attempted);
+			retryRequest(context, callback, attempted);
 		}
 	}
 }
@@ -113,4 +114,4 @@ export const effectMap: ActionMap<TEffect> = {
 	RECEIVE_MESSAGE_REQUEST: receiveEvents,
 	UNSUBSCRIBE_ALL: unsubscribeAll,
 	RECONNECTING: retryRequest,
-}
+};
